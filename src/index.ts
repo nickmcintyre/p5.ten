@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import { setBackend, getBackend } from '@tensorflow/tfjs';
 import {
   memory,
@@ -86,11 +87,32 @@ export {
 declare const p5: any;
 
 // ====================
-//        Tensor
+//      p5 methods
 // ====================
+
+p5.prototype.MANUAL = 'manual';
+p5.prototype._tensorMode = p5.prototype.AUTO;
+
+// eslint-disable-next-line consistent-return
+p5.prototype.tensorMode = function _tensorMode(mode: string): void | string {
+  if (!mode) return this._tensorMode;
+  if (mode === this.MANUAL) {
+    this._tensorMode = this.MANUAL;
+  } else if (mode === this.AUTO) {
+    this._tensorMode = this.AUTO;
+  }
+};
+
+p5.prototype._startDrawScope = function _startDrawScope() {
+  if (this.tensorMode() === this.AUTO) startScope();
+};
+
+p5.prototype._endDrawScope = function _endDrawScope() {
+  if (this.tensorMode() === this.AUTO) endScope();
+};
 
 p5.prototype.createTensor = createTensor;
 p5.prototype.registerMethod('init', startScope);
-p5.prototype.registerMethod('pre', startScope);
-p5.prototype.registerMethod('post', endScope);
+p5.prototype.registerMethod('pre', p5.prototype._startDrawScope);
+p5.prototype.registerMethod('post', p5.prototype._endDrawScope);
 p5.prototype.registerMethod('remove', endScope);
